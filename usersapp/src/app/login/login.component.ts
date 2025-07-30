@@ -15,7 +15,7 @@ import {HeaderType} from "../enum/header-type.enum";
 })
 export class LoginComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription [] = [];
-  private showLoading: boolean = false;
+  showLoading: boolean = false;
 
   constructor(private router: Router,
               private authenticationService: AuthenticationService,
@@ -61,7 +61,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   }
 
-  private sendErrorNotification(errorType: NotificationType, message: string) {
+  private sendErrorNotification(errorType: NotificationType, message: string): void {
     if(message) {
       this.notificationService.notify(errorType, message);
     }
