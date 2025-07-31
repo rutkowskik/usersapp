@@ -26,8 +26,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if(this.authenticationService.isLoggedIn()){
       this.router.navigateByUrl('/user/management');
+    } else {
+      this.router.navigateByUrl('/login');
     }
-    this.router.navigateByUrl('/login');
   }
 
   ngOnDestroy(): void {
@@ -36,7 +37,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onLogin(user: User): void {
     this.showLoading = true;
-    console.log(user);
     this.subscriptions.push(
       this.authenticationService.login(user).subscribe({
         next: (response: HttpResponse<User>) => {
@@ -44,14 +44,13 @@ export class LoginComponent implements OnInit, OnDestroy {
           if (token != null) {
             this.authenticationService.saveToken(token);
           }
-          if (response.body instanceof User) {
+          if (response.body != null) {
             this.authenticationService.addUserToLocalCache(response.body);
           }
           this.router.navigateByUrl('/user/management');
           this.showLoading = false;
         },
         error: (error :HttpErrorResponse)=> {
-          console.log(error);
           this.sendErrorNotification(NotificationType.ERROR, error.error.message);
           this.showLoading = false;
         }
@@ -64,7 +63,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   private sendErrorNotification(errorType: NotificationType, message: string): void {
     if(message) {
       this.notificationService.notify(errorType, message);
+    } else {
+      this.notificationService.notify(errorType, 'An error has occurred. Please try again later.');
     }
-    this.notificationService.notify(errorType, 'An error has occurred. Please try again later.');
   }
 }
