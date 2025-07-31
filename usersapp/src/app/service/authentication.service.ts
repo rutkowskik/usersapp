@@ -28,34 +28,46 @@ export class AuthenticationService {
   public logOut(): void {
     this.token = null;
     this.loggedInUsername = null;
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('users');
+    if (typeof window !== 'undefined' && localStorage){
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('users');
+    }
+
   }
 
   public saveToken(token: string): void {
     this.token = token;
-    localStorage.setItem('token', token);
+    if(typeof window !== 'undefined' && localStorage){
+      localStorage.setItem('token', token);
+    }
+
   }
 
   public addUserToLocalCache(user: User): void {
-    localStorage.setItem('user', JSON.stringify(user));
+    if(typeof window !== 'undefined' && localStorage){
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+
   }
 
-  public getUserFromLocalCache(): User{
-    // @ts-ignore
-    return JSON.parse(localStorage.getItem('user'));
+  public getUserFromLocalCache(): User | null {
+    if(typeof window !== 'undefined' && localStorage){
+      return JSON.parse(<string>localStorage.getItem('user'));
+    }
+    return null;
   }
 
   public loadToken(): void {
-    this.token = localStorage.getItem('token');
+    if(typeof window !== 'undefined' && localStorage){
+      this.token = localStorage.getItem('token');
+    }
   }
 
   public getToken(): string {
     return this.token;
   }
 
-  // @ts-ignore
   public isLoggedIn(): boolean {
     this.loadToken();
     if(this.token != null && this.token !== '') {
@@ -65,10 +77,8 @@ export class AuthenticationService {
           return true;
         }
       }
-    } else {
-      this.logOut();
-      return false;
     }
+    this.logOut();
+    return false;
   }
-
 }
