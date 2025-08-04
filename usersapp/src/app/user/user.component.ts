@@ -6,6 +6,7 @@ import {Router} from "@angular/router";
 import {NotificationService} from "../service/notification.service";
 import {NotificationType} from "../enum/notification-type.enum";
 import {HttpErrorResponse} from "@angular/common/http";
+import {AuthenticationService} from "../service/authentication.service";
 
 @Component({
   selector: 'app-user',
@@ -17,15 +18,20 @@ export class UserComponent implements OnInit {
   private titleSubject = new BehaviorSubject<string>('Users');
   public titleAction$ = this.titleSubject.asObservable();
   public users: User[]=[];
+  public user: User | undefined;
   public refreshing: boolean = false;
   private subscriptions: Subscription [] = [];
   isAdmin: boolean = true;
+  selectedUser: User | undefined;
+  fileName: any;
 
   constructor(private userService: UserService,
               private notificationService: NotificationService,
-              private router: Router) {}
+              private router: Router,
+              private authenticationService: AuthenticationService) {}
 
   ngOnInit() {
+    this.user = this.authenticationService.getUserFromLocalCache();
     this.getUsers(true);
   }
 
@@ -68,12 +74,17 @@ export class UserComponent implements OnInit {
 
   }
 
-  onSelectUser(appUser: User) {
-
-
+  onSelectUser(selectedUser: User) {
+    this.selectedUser = selectedUser;
+    // @ts-ignore
+    document.getElementById('openUserInfo').click();
   }
 
   searchUsers(value: any) {
+
+  }
+
+  saveNewUser() {
 
   }
 }
