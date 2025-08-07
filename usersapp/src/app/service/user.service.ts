@@ -18,7 +18,7 @@ export class UserService {
     return this.http.get<User[]>(`${this.host}/user/list`);
   }
 
-  public addUser(formData: FormData): Observable<User | HttpErrorResponse> {
+  public addUser(formData: FormData): Observable<User> {
     return this.http.post<User>(`${this.host}/user/add`, formData);
   }
 
@@ -53,17 +53,19 @@ export class UserService {
     return null;
   }
 
-  public createUserFormData(loggedInUsername: string, user: User, profileImage: File): FormData {
+  public createUserFormData(loggedInUsername: string | null, user: User, profileImage: File| undefined): FormData {
     const formData = new FormData();
-    formData.append('currentUsername', loggedInUsername);
+    if(loggedInUsername)
+      formData.append('currentUsername', loggedInUsername);
     formData.append('firstName', user.firstName);
     formData.append('lastName', user.lastName);
     formData.append('username', user.username);
     formData.append('email', user.email);
     formData.append('role', user.role);
-    formData.append('profileImage', profileImage);
-    formData.append('isActive', JSON.stringify(user.isActive));
-    formData.append('isNonLocked', JSON.stringify(user.isNotLocked));
+    if(profileImage)
+      formData.append('profileImage', profileImage);
+    formData.append('isActive', JSON.stringify(user.active));
+    formData.append('isNonLocked', JSON.stringify(user.notLocked));
     return formData;
   }
 }

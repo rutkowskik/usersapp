@@ -1,3 +1,4 @@
+<app-loading-spinner [isLoading]="processingRequest"></app-loading-spinner>
 <div class="container">
   <div class="row mb-2 mt-2 text-center">
     <div class="col-md-4">
@@ -21,7 +22,7 @@
           <i class="fa fa-cogs"></i>
           Settings
         </a>
-        <a class="nav-item nav-link move-right mr-3" (click)="changeTitle('Profile')" data-toggle="tab" href="#profile">
+        <a class="nav-item nav-link move-right me-3" (click)="changeTitle('Profile')" data-toggle="tab" href="#profile">
           Welcome, {{user?.firstName}}
           <i class="fa fa-user"></i>
         </a>
@@ -73,8 +74,8 @@
           <td (click)="onSelectUser(appUser)">{{appUser?.username}}</td>
           <td (click)="onSelectUser(appUser)">{{appUser?.email}}</td>
           <td (click)="onSelectUser(appUser)">
-            <span [hidden]="appUser?.isActive" class="badge badge-success">Active</span>
-            <span [hidden]="!appUser?.isActive" class="badge badge-danger">Inactive</span>
+            <span [hidden]="!appUser.active" class="badge badge-success">Active</span>
+            <span [hidden]="appUser.active" class="badge badge-danger">Inactive</span>
           </td>
           <td class="">
             <div class="btn-group">
@@ -121,8 +122,8 @@
                         {{selectedUser?.lastName}}</h6>
                       <p class="mb-1">{{selectedUser?.username}}</p>
                       <div class="">Status:
-                        <span [hidden]="selectedUser?.isActive" class="badge badge-success">Active</span>
-                        <span [hidden]="!selectedUser?.isActive" class="badge badge-danger">Inactive</span>
+                        <span [hidden]="!selectedUser?.active" class="badge badge-success">Active</span>
+                        <span [hidden]="selectedUser?.active" class="badge badge-danger">Inactive</span>
                       </div>
                       <div *ngIf="selectedUser?.lastLoginDateDisplay" class="text-muted"><small>Last Login: {{selectedUser?.lastLoginDateDisplay | date: 'dd.MM.yyyy'}}</small>
                       </div>
@@ -144,12 +145,12 @@
                   class="fas fa-sign-in-alt float-end"></i>{{selectedUser?.lastLoginDateDisplay | date: 'dd.MM.yyyy'}}
                 </li>
                 <li class="list-group-item">
-                    <span [hidden]="!selectedUser?.isNotLocked">
+                    <span [hidden]="selectedUser?.notLocked">
                       <i class="fa fa-lock float-end" style="color: red;">
                       </i>
                       Account Locked
                     </span>
-                  <span [hidden]="selectedUser?.isNotLocked">
+                  <span [hidden]="!selectedUser?.notLocked">
                       <i class="fa fa-unlock float-end" style="color: green;">
                       </i>
                       Account Unlocked
@@ -167,38 +168,35 @@
   </div>
 
   <!-- model add user -->
-  <div [hidden]="!isAdmin" class="modal draggable fade bd-example-modal-lg" id="addUserModal" tabindex="-1" role="dialog"
+  <div [hidden]="!isAdmin" class="modal draggable fade" id="addUserModal" tabindex="-1" role="dialog"
        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title text-center">New User</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
         <div class="modal-body">
           <div>
-<!--            <form #newUserForm="ngForm" (ngSubmit)="onAddNewUser(newUserForm)">-->
-              <div class="form-group">
-<!--                <label for="firstName">First Name</label>-->
-                <input type="text" name="firstName" required ngModel class="form-control">
+            <form #newUserForm="ngForm" (ngSubmit)="onAddNewUser(newUserForm)">
+              <div class="mb-3">
+                <label for="firstName">First Name</label>
+                <input id="firstName" type="text" name="firstName" required ngModel class="form-control">
               </div>
-              <div class="form-group">
-<!--                <label for="lastName">Last Name</label>-->
-                <input type="text" name="lastName" required ngModel class="form-control">
+              <div class="mb-3">
+                <label for="lastName">Last Name</label>
+                <input id="lastName" type="text" name="lastName" required ngModel class="form-control">
               </div>
-              <div class="form-group">
-<!--                <label for="username">Username</label>-->
-                <input type="text" name="username" required ngModel class="form-control">
+              <div class="mb-3">
+                <label for="username">Username</label>
+                <input type="text" id="username"  name="username" required ngModel class="form-control">
               </div>
-              <div class="form-group">
-<!--                <label for="email">Email</label>-->
-                <input type="email" name="email" required ngModel class="form-control">
+              <div class="mb-3">
+                <label for="email">Email</label>
+                <input type="email"  id="email"   name="email" required ngModel class="form-control">
               </div>
-              <div *ngIf="isAdmin" class="form-group">
-<!--                <label for="authority">Role</label>-->
-                <select name="role" required ngModel="ROLE_USER" class="form-control">
+              <div *ngIf="isAdmin" class="mb-3">
+                <label for="authority">Role</label>
+                <select  id="authority"   name="role" required ngModel="ROLE_USER" class="form-select">
                   <option value="ROLE_USER">USER</option>
                   <option value="ROLE_HR">HR</option>
                   <option value="ROLE_MANAGER">MANAGER</option>
@@ -206,27 +204,21 @@
                   <option value="ROLE_SUPER_ADMIN">SUPER ADMIN</option>
                 </select>
               </div>
-              <div *ngIf="!isAdmin" class="form-group">
-<!--                <label for="authority">Role</label>-->
+              <div *ngIf="!isAdmin" class="mb-3">
+                <label>Role</label>
                 <input type="text" name="role" required ngModel="USER" readonly class="form-control">
               </div>
-              <div class="input-group mb-2">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">Profile Picture </span>
-                </div>
-                <div class="custom-file">
-                  <input type="file" accept="image/*" name="profileImage"
-                         class="custom-file-input">
-                  <label class="custom-file-label"><span [hidden]="!fileName">{{ fileName }}</span>
-                    <span [hidden]="fileName">Choose File</span>
-                  </label>
-                </div>
+              <div class="input-group mb-3 ">
+                  <span>Profile Picture </span>
+                  <div class="d-flex justify-content-end w-100">
+                    <input type="file" accept="image/*" name="profileImage" class="form-control" (change)="onProfileImageChange($event)">
+                  </div>
               </div>
-              <fieldset class="form-group">
+              <fieldset class="mb-3">
                 <div class="form-check">
                   <label class="form-check-label">
                     <input type="checkbox" name="active" ngModel class="form-check-input" >
-                    Acitve
+                    Active
                   </label>
                 </div>
                 <div class="form-check disabled">
@@ -237,12 +229,12 @@
                 </div>
               </fieldset>
               <button type="submit" style="display: none;" id="new-user-save"></button>
-<!--            </form>-->
+            </form>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" id="new-user-close">Close</button>
-<!--          <button type="button" (click)="saveNewUser()" [disabled]="newUserForm.invalid" class="btn btn-primary">Save changes</button>-->
+          <button type="button" (click)="saveNewUser()" [disabled]="newUserForm.invalid || processingRequest" class="btn btn-primary">Save changes</button>
         </div>
       </div>
     </div>

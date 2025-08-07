@@ -14,13 +14,15 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { UserComponent } from './user/user.component';
 import {FormsModule} from "@angular/forms";
+import { LoadingSpinnerComponent } from './common/loading-spinner/loading-spinner.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     RegisterComponent,
-    UserComponent
+    UserComponent,
+    LoadingSpinnerComponent
   ],
   imports: [
     BrowserModule,
