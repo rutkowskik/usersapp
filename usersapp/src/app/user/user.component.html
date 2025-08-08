@@ -80,12 +80,31 @@
           <td class="">
             <div class="btn-group">
               <button class="btn btn-outline-info" (click)="onEditUser(appUser)"><i class="fas fa-edit"></i></button>
-              <button [hidden]="!isAdmin" class="btn btn-outline-danger" (click)="onDeleteUser(appUser?.username)"><i class="fas fa-trash"></i></button>
+              <button [hidden]="!isAdmin" class="btn btn-outline-danger" (click)="onDeleteUser(appUser.id)"><i class="fas fa-trash"></i></button>
             </div>
           </td>
         </tr>
         </tbody>
       </table>
+    </div>
+
+    <!--change password-->
+    <div class="tab-pane fade" id="reset-password">
+      <form #resetPasswordForm="ngForm" (ngSubmit)="onResetPassword(resetPasswordForm)">
+        <fieldset>
+          <legend>User Password Management</legend>
+          <div class="mb-3">
+            <label for="exampleInputEmail">Email Address</label>
+            <input id="exampleInputEmail" type="email" name="reset-password-email" required ngModel class="form-control" placeholder="Enter email">
+            <small>We'll never share your email with anyone else</small>
+          </div>
+          <button type="submit" [disabled]="false" class="btn btn-primary">
+            <i *ngIf="refreshing" class="fas fa-spinner fa-spin"></i>
+            <span *ngIf="refreshing">&nbsp;Loading...</span>
+            <span *ngIf="!refreshing">Reset password</span>
+          </button>
+        </fieldset>
+      </form>
     </div>
 
     <button [hidden]="true" type="button" id="openUserInfo" data-toggle="modal" data-target="#viewUserModal">

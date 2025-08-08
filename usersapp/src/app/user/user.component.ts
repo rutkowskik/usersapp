@@ -1,13 +1,13 @@
 import {Component, OnInit} from '@angular/core';
-import {BehaviorSubject, Subscription} from "rxjs";
+import {BehaviorSubject, finalize, Subscription} from "rxjs";
 import {User} from "../model/user";
 import {UserService} from "../service/user.service";
-import {Router} from "@angular/router";
 import {NotificationService} from "../service/notification.service";
 import {NotificationType} from "../enum/notification-type.enum";
 import {HttpErrorResponse} from "@angular/common/http";
 import {AuthenticationService} from "../service/authentication.service";
 import {NgForm} from "@angular/forms";
+import {CustomHttpResponse} from "../model/custom-http-reposne";
 
 @Component({
   selector: 'app-user',
@@ -32,7 +32,6 @@ export class UserComponent implements OnInit {
 
   constructor(private userService: UserService,
               private notificationService: NotificationService,
-              private router: Router,
               private authenticationService: AuthenticationService) {}
 
   ngOnInit() {
@@ -63,8 +62,36 @@ export class UserComponent implements OnInit {
       }));
   }
 
-  public onDeleteUser(username: string | undefined): void {
+  public onDeleteUser(userId: number): void {
+    this.subscriptions.push(this.userService.deleteUser(userId).subscribe({
+      next: (customHttpResponse: CustomHttpResponse) => {
+        this.notificationService.notify(NotificationType.SUCCESS, 'User deleted successfully');
+        this.getUsers(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.notificationService.notify(NotificationType.ERROR, error.error.message);
+      }
+    }))
+  }
 
+  //todo block multiple method invocation
+  public onResetPassword(emailFrom: NgForm): void {
+    this.refreshing = true;
+    const email = emailFrom.value['reset-password-email'];
+    this.subscriptions.push(this.userService.resetPassword(email)
+      .pipe(finalize(()=> {
+          emailFrom.reset();
+          this.refreshing = false;
+        }
+      ))
+      .subscribe({
+        next: (response ) => {
+          this.notificationService.notify(NotificationType.SUCCESS, 'The password has been reset successfully');
+        },
+        error: (error: HttpErrorResponse) => {
+          this.notificationService.notify(NotificationType.WARNING, error.error.message);
+        }
+      }));
   }
 
   private sendNotification(errorType: NotificationType, message: string): void {
@@ -117,7 +144,7 @@ export class UserComponent implements OnInit {
         ||
         user.lastName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
         ||
-        user.userId.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
+        user.getUserIdAsString().toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
         ||
         user.username.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
       ) {

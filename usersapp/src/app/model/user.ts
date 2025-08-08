@@ -1,6 +1,6 @@
 export class User {
   public id: number;
-  public userId: string;
+  public userId: number;
   public firstName: string;
   public lastName: string;
   public username: string;
@@ -18,7 +18,7 @@ export class User {
 
   constructor() {
     this.id = 0;
-    this.userId = '';
+    this.userId = 0;
     this.firstName = '';
     this.lastName = '';
     this.username = '';
@@ -32,6 +32,10 @@ export class User {
     this.authorities = [];
     this.active = false;
     this.notLocked = false;
+  }
+
+  getUserIdAsString(): string{
+    return this.userId.toString();
   }
 
 }

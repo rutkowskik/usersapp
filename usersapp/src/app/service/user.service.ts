@@ -26,8 +26,8 @@ export class UserService {
     return this.http.post<User>(`${this.host}/user/update`, formData);
   }
 
-  public resetPassword(email : string): Observable<CustomHttpResponse | HttpErrorResponse> {
-    return this.http.get<CustomHttpResponse>(`${this.host}/user/resertpassword${email}`);
+  public resetPassword(email : string): Observable<CustomHttpResponse> {
+    return this.http.get<CustomHttpResponse>(`${this.host}/user/resertpassword/${email}`);
   }
 
   //todo Do I have to change to 'any' in HttpEvent?
@@ -38,7 +38,8 @@ export class UserService {
     });
   }
 
-  public deleteUser(userId: string): Observable<CustomHttpResponse | HttpErrorResponse> {
+  //todo change to userID -> PK mustn't be shown to public
+  public deleteUser(userId: number): Observable<CustomHttpResponse> {
     return this.http.delete<CustomHttpResponse>(`${this.host}/user/delete/${userId}`);
   }
 
