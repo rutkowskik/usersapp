@@ -22,7 +22,7 @@ export class UserService {
     return this.http.post<User>(`${this.host}/user/add`, formData);
   }
 
-  public updatedUser(formData: FormData): Observable<User | HttpErrorResponse> {
+  public updatedUser(formData: FormData): Observable<User> {
     return this.http.post<User>(`${this.host}/user/update`, formData);
   }
 
@@ -46,11 +46,11 @@ export class UserService {
     localStorage.setItem('users', JSON.stringify(users))
   }
 
-  public getUsersFromLocalCache(): User[] | null {
+  public getUsersFromLocalCache(): User[] {
     if(localStorage.getItem('users')) {
       return JSON.parse(<string>localStorage.getItem('users'));
     }
-    return null;
+    return [];
   }
 
   public createUserFormData(loggedInUsername: string | null, user: User, profileImage: File| undefined): FormData {

@@ -174,6 +174,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title text-center">New User</h5>
+          <button type="button" class="btn-close ms-auto" data-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div>
@@ -235,6 +236,80 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" id="new-user-close">Close</button>
           <button type="button" (click)="saveNewUser()" [disabled]="newUserForm.invalid || processingRequest" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal draggable fade" id="editUserModal" tabindex="-1"
+       role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit user: {{editUser.firstName}} {{editUser.lastName}}</h5>
+          <button type="button" class="btn-close ms-auto" data-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="">
+            <form #editUserForm="ngForm">
+              <div class="mb-3">
+                <label for="firstName">First Name</label>
+                <input type="text" name="firstName" required
+                       [(ngModel)]="editUser.firstName" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label for="lastName">Last Name</label>
+                <input type="text" name="lastName" required
+                       [(ngModel)]="editUser.lastName" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label for="username">Username</label>
+                <input type="text" name="username" required
+                       [(ngModel)]="editUser.username" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label for="email">Email</label>
+                <input type="email" name="email" required [(ngModel)]="editUser.email"
+                       class="form-control">
+              </div>
+              <div class="mb-3">
+                <label for="authority">Role</label>
+                <select name="role" required [(ngModel)]="editUser.role" class="form-select">
+                  <option value="ROLE_USER">USER</option>
+                  <option value="ROLE_HR">HR</option>
+                  <option value="ROLE_MANAGER">MANAGER</option>
+                  <option value="ROLE_ADMIN">ADMIN</option>
+                  <option value="ROLE_SUPER_ADMIN">SUPER ADMIN</option>
+                </select>
+              </div>
+              <div class="input-group mb-3 ">
+                <span>Profile Picture </span>
+                <div class="d-flex justify-content-end w-100">
+                  <input type="file" accept="image/*" name="profileImage" class="form-control" (change)="onProfileImageChange($event)">
+                </div>
+              </div>
+              <fieldset class="mb-3">
+                <div class="form-check">
+                  <label class="form-check-label">
+                    <input name="active" type="checkbox" [(ngModel)]="editUser.active"
+                           class="form-check-input">
+                    Active
+                  </label>
+                </div>
+                <div class="form-check disabled">
+                  <label class="form-check-label">
+                    <input name="locked" type="checkbox" [(ngModel)]="editUser.notLocked"
+                           class="form-check-input">
+                    Unlocked
+                  </label>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeEditUserModalButton">Close</button>
+          <button type="button" (click)="onUpdateUser()" [disabled]="editUserForm.invalid" class="btn btn-primary">Save changes</button>
         </div>
       </div>
     </div>

@@ -27,6 +27,8 @@ export class UserComponent implements OnInit {
   fileName: string | undefined;
   profileImage: File | undefined;
   processingRequest: boolean = false;
+  editUser: User = new User();
+  private currentUsername: string = '';
 
   constructor(private userService: UserService,
               private notificationService: NotificationService,
@@ -73,8 +75,34 @@ export class UserComponent implements OnInit {
     }
   }
 
-  onEditUser(appUser: User) {
+  onEditUser(editUser: User) {
+    this.editUser = editUser;
+    this.currentUsername = editUser.username;
+    this.clickButton('openUserEdit');
 
+  }
+
+  onUpdateUser(){
+    if(this.processingRequest) return;
+    this.processingRequest = true;
+    const formData = this.userService.createUserFormData(this.currentUsername, this.editUser, this.profileImage);
+    this.subscriptions.push(
+      this.userService.updatedUser(formData).subscribe({
+        next: (user: User) => {
+          this.clickButton('closeEditUserModalButton');
+          this.getUsers(false);
+          this.fileName = undefined;
+          this.profileImage = undefined;
+          this.sendNotification(NotificationType.SUCCESS, `${user.firstName} ${user.lastName} updated successfully`);
+          this.processingRequest = false;
+        },
+        error: (error: HttpErrorResponse) => {
+          this.sendNotification(NotificationType.ERROR, error.error.message);
+          this.refreshing = false;
+          this.processingRequest = false;
+        }
+      })
+    )
   }
 
   onSelectUser(selectedUser: User) {
@@ -82,8 +110,25 @@ export class UserComponent implements OnInit {
     this.clickButton('openUserInfo');
   }
 
-  searchUsers(value: any) {
-
+  searchUsers(searchTerm: string): void {
+    const results: User[] = [];
+    for (const user of this.userService.getUsersFromLocalCache()) {
+      if(user.firstName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
+        ||
+        user.lastName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
+        ||
+        user.userId.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
+        ||
+        user.username.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
+      ) {
+        results.push(user);
+      }
+    }
+    this.users = results;
+    if (!searchTerm) {
+      //todo if the users are empty list return some information
+      this.users = this.userService.getUsersFromLocalCache();
+    }
   }
 
   saveNewUser() {
@@ -102,7 +147,7 @@ export class UserComponent implements OnInit {
           this.fileName = undefined;
           this.profileImage = undefined;
           userForm.reset();
-          this.sendNotification(NotificationType.SUCCESS, `${user.firstName} ${user.lastName} updated successfully`);
+          this.sendNotification(NotificationType.SUCCESS, `${user.firstName} ${user.lastName} added successfully`);
           this.processingRequest = false;
         },
         error: (error: HttpErrorResponse) => {
@@ -127,4 +172,5 @@ export class UserComponent implements OnInit {
     if(button)
       button.click();
   }
+
 }
