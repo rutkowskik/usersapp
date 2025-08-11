@@ -1,10 +1,8 @@
 export class User {
-  public id: number;
-  public userId: number;
+  public userId: string;
   public firstName: string;
   public lastName: string;
   public username: string;
-  public password: string;
   public email: string;
   public profileImageUrl: string;
   public lastLoginDate: Date;
@@ -17,12 +15,10 @@ export class User {
 
 
   constructor() {
-    this.id = 0;
-    this.userId = 0;
+    this.userId = '';
     this.firstName = '';
     this.lastName = '';
     this.username = '';
-    this.password = '';
     this.email = '';
     this.lastLoginDate = new Date();
     this.lastLoginDateDisplay = new Date();
@@ -33,10 +29,5 @@ export class User {
     this.active = false;
     this.notLocked = false;
   }
-
-  getUserIdAsString(): string{
-    return this.userId.toString();
-  }
-
 }
 

@@ -10,6 +10,7 @@ import {NgForm} from "@angular/forms";
 import {CustomHttpResponse} from "../model/custom-http-reposne";
 import {Router} from "@angular/router";
 import {FileUploadStatus} from "../model/file-upload-status";
+import {Role} from "../enum/role.enum";
 
 @Component({
   selector: 'app-user',
@@ -24,7 +25,6 @@ export class UserComponent implements OnInit {
   public user: User = new User();
   public refreshing: boolean = false;
   private subscriptions: Subscription [] = [];
-  isAdmin: boolean = true;
   selectedUser: User | undefined;
   fileName: string | undefined;
   profileImage: File | undefined;
@@ -148,7 +148,7 @@ export class UserComponent implements OnInit {
         ||
         user.lastName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
         ||
-        user.getUserIdAsString().toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
+        user.userId.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
         ||
         user.username.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
       ) {
@@ -196,6 +196,22 @@ export class UserComponent implements OnInit {
       this.profileImage = input.files[0];
       this.fileName = this.profileImage.name;
     }
+  }
+
+  public get isAdmin(): boolean {
+    return this.getUserRole() === Role.ADMIN || this.getUserRole() === Role.SUPER_ADMIN;
+  }
+
+  public get isManager(): boolean {
+    return  this.isAdmin || this.getUserRole() === Role.MANAGER;
+  }
+
+  public get isAdminOrManger(): boolean {
+    return this.isAdmin || this.isManager;
+  }
+
+  private getUserRole(): string {
+    return this.authenticationService.getUserFromLocalCache().role;
   }
 
   private clickButton(buttonId: string): void {
