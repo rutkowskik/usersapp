@@ -8,6 +8,7 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {AuthenticationService} from "../service/authentication.service";
 import {NgForm} from "@angular/forms";
 import {CustomHttpResponse} from "../model/custom-http-reposne";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-user',
@@ -33,7 +34,8 @@ export class UserComponent implements OnInit {
 
   constructor(private userService: UserService,
               private notificationService: NotificationService,
-              private authenticationService: AuthenticationService) {}
+              private authenticationService: AuthenticationService,
+              private router: Router) {}
 
   ngOnInit() {
     this.user = this.authenticationService.getUserFromLocalCache();
@@ -231,6 +233,8 @@ export class UserComponent implements OnInit {
   }
 
   onLogOut() : void {
-
+    this.authenticationService.logOut();
+    this.router.navigate(['/login']);
+    this.notificationService.notify(NotificationType.SUCCESS, "You` ve been logged out.");
   }
 }
