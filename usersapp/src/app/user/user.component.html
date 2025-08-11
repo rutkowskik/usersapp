@@ -493,4 +493,10 @@
     </div>
   </div>
 
+  <form enctype="multipart/form-data" style="display:none;">
+    <input type="file"
+           (change)="onProfileImageChange($event); onUpdateProfileImage()"
+           name="profile-image-input" id="profile-image-input" placeholder="file" accept="image/*" />
+  </form>
+
 </div>

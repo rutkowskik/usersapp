@@ -4,11 +4,12 @@ import {User} from "../model/user";
 import {UserService} from "../service/user.service";
 import {NotificationService} from "../service/notification.service";
 import {NotificationType} from "../enum/notification-type.enum";
-import {HttpErrorResponse} from "@angular/common/http";
+import {HttpErrorResponse, HttpEvent, HttpEventType} from "@angular/common/http";
 import {AuthenticationService} from "../service/authentication.service";
 import {NgForm} from "@angular/forms";
 import {CustomHttpResponse} from "../model/custom-http-reposne";
 import {Router} from "@angular/router";
+import {FileUploadStatus} from "../model/file-upload-status";
 
 @Component({
   selector: 'app-user',
@@ -30,7 +31,7 @@ export class UserComponent implements OnInit {
   processingRequest: boolean = false;
   editUser: User = new User();
   private currentUsername: string = '';
-  fileStatus: any;
+  fileStatus: FileUploadStatus = new FileUploadStatus();
 
   constructor(private userService: UserService,
               private notificationService: NotificationService,
@@ -203,8 +204,8 @@ export class UserComponent implements OnInit {
       button.click();
   }
 
-  updateProfileImage() {
-
+  updateProfileImage(): void {
+    this.clickButton('profile-image-input');
   }
 
   onUpdateCurrentUser(user: User) {
@@ -236,5 +237,46 @@ export class UserComponent implements OnInit {
     this.authenticationService.logOut();
     this.router.navigate(['/login']);
     this.notificationService.notify(NotificationType.SUCCESS, "You` ve been logged out.");
+  }
+
+  onUpdateProfileImage(): void {
+    const formData = new FormData();
+    formData.append("username", this.user.username);
+    if(this.profileImage){
+      formData.append("image", this.profileImage);
+      this.subscriptions.push(
+        this.userService.updateProfileImage(formData).subscribe({
+          next: (httpEvent: HttpEvent<any>) => {
+            this.reportUploadProgress(httpEvent);
+          },
+          error: (response: HttpErrorResponse) => {
+            this.sendNotification(NotificationType.ERROR, response.error.message);
+            this.fileStatus.status = 'done';
+            }
+        })
+      )
+    }
+  }
+
+  private reportUploadProgress(httpEvent: HttpEvent<any>) {
+    switch (httpEvent.type) {
+      case HttpEventType.UploadProgress:
+        if (httpEvent.total)
+          this.fileStatus.percentage = Math.round(100 * httpEvent.loaded / httpEvent.total);
+        this.fileStatus.status = 'progress';
+        break;
+      case HttpEventType.Response:
+        if(httpEvent.status === 200){
+          this.user.profileImageUrl = `${httpEvent.body.profileImageUrl}?time=${new Date().getMilliseconds()}`;
+          this.notificationService.notify(NotificationType.SUCCESS, `${httpEvent.body.firstName}\'s profile image uploaded successfully`);
+          this.fileStatus.status = 'done';
+          break;
+        } else {
+          this.notificationService.notify(NotificationType.ERROR, `Unable to upload image. Please try again`);
+          break;
+        }
+        default:
+          `Finished all process`;
+    }
   }
 }

@@ -31,7 +31,7 @@ export class UserService {
   }
 
   //todo Do I have to change to 'any' in HttpEvent?
-  public updateProfileImage(formData : FormData): Observable<HttpEvent<User> | HttpErrorResponse> {
+  public updateProfileImage(formData : FormData): Observable<HttpEvent<User>> {
     return this.http.post<User>(`${this.host}/user/updateProfileImage`, formData,
     {reportProgress: true,
       observe: 'events'
