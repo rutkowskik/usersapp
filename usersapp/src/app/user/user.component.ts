@@ -19,7 +19,7 @@ export class UserComponent implements OnInit {
   private titleSubject = new BehaviorSubject<string>('Users');
   public titleAction$ = this.titleSubject.asObservable();
   public users: User[]=[];
-  public user: User | undefined;
+  public user: User = new User();
   public refreshing: boolean = false;
   private subscriptions: Subscription [] = [];
   isAdmin: boolean = true;
@@ -29,6 +29,7 @@ export class UserComponent implements OnInit {
   processingRequest: boolean = false;
   editUser: User = new User();
   private currentUsername: string = '';
+  fileStatus: any;
 
   constructor(private userService: UserService,
               private notificationService: NotificationService,
@@ -200,4 +201,36 @@ export class UserComponent implements OnInit {
       button.click();
   }
 
+  updateProfileImage() {
+
+  }
+
+  onUpdateCurrentUser(user: User) {
+    if(this.processingRequest) return;
+    this.refreshing = true;
+    this.processingRequest = true;
+    this.currentUsername = this.authenticationService.getUserFromLocalCache().username;
+    const formData = this.userService.createUserFormData(this.currentUsername, user, this.profileImage);
+    this.subscriptions.push(
+      this.userService.updatedUser(formData).subscribe({
+        next: (response: User) => {
+          this.authenticationService.addUserToLocalCache(response)
+          this.getUsers(false);
+          this.fileName = undefined;
+          this.profileImage = undefined;
+          this.sendNotification(NotificationType.SUCCESS, `${response.firstName} ${response.lastName} updated successfully`);
+          this.processingRequest = false;
+        },
+        error: (error: HttpErrorResponse) => {
+          this.sendNotification(NotificationType.ERROR, error.error.message);
+          this.refreshing = false;
+          this.processingRequest = false;
+        }
+      })
+    )
+  }
+
+  onLogOut() : void {
+
+  }
 }

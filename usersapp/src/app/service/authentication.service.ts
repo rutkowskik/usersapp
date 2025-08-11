@@ -51,11 +51,11 @@ export class AuthenticationService {
 
   }
 
-  public getUserFromLocalCache(): User | undefined {
+  public getUserFromLocalCache(): User {
     if(typeof window !== 'undefined' && localStorage){
       return JSON.parse(<string>localStorage.getItem('user'));
     }
-    return undefined;
+    return new User();
   }
 
   public loadToken(): void {
