@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {BehaviorSubject, finalize, Subscription} from "rxjs";
 import {User} from "../model/user";
 import {UserService} from "../service/user.service";
@@ -17,7 +17,7 @@ import {Role} from "../enum/role.enum";
   templateUrl: './user.component.html',
   styleUrl: './user.component.css'
 })
-export class UserComponent implements OnInit {
+export class UserComponent implements OnInit, OnDestroy {
 
   private titleSubject = new BehaviorSubject<string>('Users');
   public titleAction$ = this.titleSubject.asObservable();
@@ -206,7 +206,7 @@ export class UserComponent implements OnInit {
     return  this.isAdmin || this.getUserRole() === Role.MANAGER;
   }
 
-  public get isAdminOrManger(): boolean {
+  public get isAdminOrManager(): boolean {
     return this.isAdmin || this.isManager;
   }
 
@@ -294,5 +294,9 @@ export class UserComponent implements OnInit {
         default:
           `Finished all process`;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }
